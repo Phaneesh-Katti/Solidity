@@ -12,10 +12,7 @@ This repository contains a Solidity smart contract named `FundMe` along with ass
 To run this project, ensure you have the following installed:
 - Node.js (v20.x) - [Download Node.js](https://nodejs.org/en/download/package-manager)
 - Hardhat - A development environment to compile, deploy, test, and debug Ethereum software.
-```bash
-  npm install -–save-dev hardhat
-  npx hardhat init
-```
+
 ## Setup Instructions
 
 1. **Clone the repository**:
