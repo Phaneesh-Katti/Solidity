@@ -43,12 +43,12 @@ To run this project, ensure you have the following installed:
 
 ## Deployment
 
-1. **Start a local node**:
+1. **Start a local node**: 
     ```bash
     npx hardhat node
     ```
 
-2. **Deploy the contract to the local node**:
+2. **Deploy the contract to the local node**: (On another Terminal)
     ```bash
     npx hardhat ignition deploy ./ignition/modules/FundMe.js --network localhost
     ```
