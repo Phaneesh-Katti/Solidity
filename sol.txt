@@ -1,0 +1,94 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.19;
+
+contract FundMe {
+    // State variables
+    mapping(address => uint256) private balances;
+    address[] private funders;
+    address private immutable owner;
+    uint256 private totalWithdrawn;
+
+    // Events
+    event Funded(address indexed funder, uint256 amount);
+    event Withdrawn(address indexed owner, uint256 amount);
+    event WithdrawnToAddress(address indexed recipient, uint256 amount);
+
+    // Constructor
+    constructor() {
+        owner = msg.sender; // Set the contract deployer as the owner
+    }
+
+    // Modifier to check if the caller is the owner
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Not the owner");
+        _;
+    }
+
+    // Fund the contract, minimum 10 Gwei
+    function fund() external payable {
+        require(msg.value >= 10 gwei, "Minimum amount is 10 Gwei");
+        
+        if (balances[msg.sender] == 0) {
+            funders.push(msg.sender);
+        }
+
+        balances[msg.sender] += msg.value;
+        emit Funded(msg.sender, msg.value);
+    }
+
+    // Withdraw all funds by the owner
+    function withdraw() external onlyOwner {
+        uint256 balance = address(this).balance;
+        require(balance > 0, "No funds to withdraw");
+
+        for (uint256 i = 0; i < funders.length; i++) {
+            balances[funders[i]] = 0;
+        }
+
+        // Clear the funders array
+        delete funders;
+
+        totalWithdrawn += balance;
+        payable(owner).transfer(balance);
+
+        emit Withdrawn(owner, balance);
+    }
+
+    // Withdraw to a specific address
+    function withdrawToDistinctAddress(address payable recipient, uint256 amount) external onlyOwner {
+        require(amount <= address(this).balance, "Not enough funds in the contract");
+
+        for (uint256 i = 0; i < funders.length; i++) {
+            if (balances[funders[i]] >= amount) {
+                balances[funders[i]] -= amount;
+                break;
+            }
+        }
+
+        totalWithdrawn += amount;
+        recipient.transfer(amount);
+
+        emit WithdrawnToAddress(recipient, amount);
+    }
+
+    // Getter functions for state variables
+    function getOwner() external view returns (address) {
+        return owner;
+    }
+
+    function getFunderBalance(address funder) external view returns (uint256) {
+        return balances[funder];
+    }
+
+    function getTotalWithdrawn() external view returns (uint256) {
+        return totalWithdrawn;
+    }
+
+    function getFunders() external view returns (address[] memory) {
+        return funders;
+    }
+
+    function getContractBalance() external view returns (uint256) {
+        return address(this).balance;
+    }
+}
